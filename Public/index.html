@@ -4,68 +4,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediCare - Hospital Management</title>
+    <title>MediCare | Hospital Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 
+<div class="app">
+
     <aside class="sidebar">
-        <h2>🏥 MediCare</h2>
-        <p>Hospital Management</p>
+        <div class="brand">
+            <div class="brand-icon"><i data-lucide="heart-pulse"></i></div>
+            <div>
+                <h2>MediCare</h2>
+                <span>Hospital Management</span>
+            </div>
+        </div>
+
+        <div class="nav-label">MAIN MENU</div>
 
         <nav>
-            <a href="#" class="active">Dashboard</a>
-            <a href="#" onclick="showSection('patients')">Patients</a>
-            <a href="#" onclick="showSection('doctors')">Doctors</a>
-            <a href="#" onclick="showSection('appointments')">Appointments</a>
+            <a href="#" class="nav-link active" data-section="dashboard">
+                <i data-lucide="layout-dashboard"></i> Dashboard
+            </a>
+            <a href="#" class="nav-link" data-section="patients">
+                <i data-lucide="users"></i> Patients
+            </a>
+            <a href="#" class="nav-link" data-section="doctors">
+                <i data-lucide="stethoscope"></i> Doctors
+            </a>
+            <a href="#" class="nav-link" data-section="appointments">
+                <i data-lucide="calendar-days"></i> Appointments
+            </a>
         </nav>
+
+        <div class="sidebar-bottom">
+            <div class="support-box">
+                <i data-lucide="headset"></i>
+                <h4>Need Help?</h4>
+                <p>Manage your hospital efficiently.</p>
+            </div>
+            <p class="version">MediCare v2.0</p>
+        </div>
     </aside>
 
     <main class="main">
-        <header>
-            <h1>Dashboard</h1>
-            <p>Welcome to MediCare Hospital Management System</p>
+
+        <header class="topbar">
+            <div>
+                <h2 id="pageTitle">Dashboard Overview</h2>
+                <p id="pageSubtitle">Welcome back! Here's what's happening today.</p>
+            </div>
+
+            <div class="top-actions">
+                <div class="search-box">
+                    <i data-lucide="search"></i>
+                    <input id="globalSearch" placeholder="Search records...">
+                </div>
+                <div class="profile">
+                    <div class="avatar">AD</div>
+                    <div>
+                        <strong>Administrator</strong>
+                        <small>Hospital Admin</small>
+                    </div>
+                </div>
+            </div>
         </header>
 
-        <section class="stats">
-            <div class="stat-card">
-                <h3>Total Patients</h3>
-                <h1 id="patientCount">0</h1>
+        <section id="dashboardSection" class="page-section">
+
+            <div class="welcome-banner">
+                <div>
+                    <span>HOSPITAL ADMINISTRATION</span>
+                    <h1>Welcome to MediCare 👋</h1>
+                    <p>Your hospital operations, all in one place.</p>
+                </div>
+                <div class="welcome-icon">
+                    <i data-lucide="hospital"></i>
+                </div>
             </div>
 
-            <div class="stat-card">
-                <h3>Total Doctors</h3>
-                <h1 id="doctorCount">0</h1>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span>Total Patients</span>
+                        <div class="stat-icon blue"><i data-lucide="users"></i></div>
+                    </div>
+                    <h2 id="patientCount">0</h2>
+                    <p>Registered patients</p>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span>Total Doctors</span>
+                        <div class="stat-icon green"><i data-lucide="stethoscope"></i></div>
+                    </div>
+                    <h2 id="doctorCount">0</h2>
+                    <p>Available records</p>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span>Appointments</span>
+                        <div class="stat-icon purple"><i data-lucide="calendar-check"></i></div>
+                    </div>
+                    <h2 id="appointmentCount">0</h2>
+                    <p>Total bookings</p>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span>Today's Appointments</span>
+                        <div class="stat-icon orange"><i data-lucide="clock"></i></div>
+                    </div>
+                    <h2 id="todayCount">0</h2>
+                    <p>Scheduled for today</p>
+                </div>
             </div>
 
-            <div class="stat-card">
-                <h3>Appointments</h3>
-                <h1 id="appointmentCount">0</h1>
+            <div class="dashboard-grid">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Appointment Analytics</h3>
+                            <p>Overview of appointment bookings</p>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="appointmentChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Quick Actions</h3>
+                            <p>Frequently used operations</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <button class="action-button" data-go="patients">
+                            <i data-lucide="user-plus"></i>
+                            <span>Register Patient</span>
+                            <i data-lucide="arrow-up-right"></i>
+                        </button>
+
+                        <button class="action-button" data-go="doctors">
+                            <i data-lucide="stethoscope"></i>
+                            <span>Add Doctor</span>
+                            <i data-lucide="arrow-up-right"></i>
+                        </button>
+
+                        <button class="action-button" data-go="appointments">
+                            <i data-lucide="calendar-plus"></i>
+                            <span>Book Appointment</span>
+                            <i data-lucide="arrow-up-right"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
+
+            <div class="panel recent-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Recent Appointments</h3>
+                        <p>Latest scheduled appointments</p>
+                    </div>
+                    <button class="outline-button" data-go="appointments">View All</button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentAppointments">
+                            <tr><td colspan="5">Loading appointments...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </section>
 
-        <section class="content">
-            <h2>Quick Actions</h2>
+        <section id="workspace" class="page-section" hidden></section>
 
-            <button onclick="showSection('patients')">
-                Register Patient
-            </button>
+        <footer>
+            <span>© 2026 MediCare Hospital Management System</span>
+            <span>Built with JavaScript & SQLite</span>
+        </footer>
 
-            <button onclick="showSection('doctors')">
-                View Doctors
-            </button>
-
-            <button onclick="showSection('appointments')">
-                Book Appointment
-            </button>
-        </section>
-
-        <section id="workspace" class="content">
-            <h2>Welcome to MediCare</h2>
-            <p>Select an option from the sidebar to get started.</p>
-        </section>
     </main>
+</div>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
+<script>
+    if (window.lucide) lucide.createIcons();
+</script>
+
 </body>
 </html>
