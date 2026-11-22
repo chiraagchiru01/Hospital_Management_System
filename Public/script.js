@@ -207,20 +207,27 @@ function renderAppointmentChart(appointments) {
     const canvas = document.getElementById('appointmentChart');
     if (!canvas || !window.Chart) return;
 
-    const labels = [];
-    const values = [];
+    // Count every active booking, not only appointments marked Completed.
+    // Cancelled appointments are excluded from the graph.
+    const countsByDate = new Map();
 
-    for (let i = 6; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const key = date.toLocaleDateString('en-CA');
+    appointments
+        .filter(appointment => appointment.status !== 'Cancelled')
+        .forEach(appointment => {
+            const date = appointment.date;
+            if (!date) return;
+            countsByDate.set(date, (countsByDate.get(date) || 0) + 1);
+        });
 
-        labels.push(date.toLocaleDateString('en-US', {
-            weekday: 'short'
-        }));
-
-        values.push(appointments.filter(a => a.date === key).length);
-    }
+    const dates = [...countsByDate.keys()].sort();
+    const labels = dates.map(date => {
+        const [year, month, day] = date.split('-').map(Number);
+        return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString(
+            undefined,
+            { month: 'short', day: 'numeric', timeZone: 'UTC' }
+        );
+    });
+    const values = dates.map(date => countsByDate.get(date));
 
     if (appointmentChart) appointmentChart.destroy();
 
@@ -242,7 +249,12 @@ function renderAppointmentChart(appointments) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 }
+                }
+            }
         }
     });
 }
@@ -376,8 +388,10 @@ async function addPatient(event) {
         });
 
         notify(result.message);
-        await renderPatients();
+
         await loadDashboard();
+        await renderPatients();
+        
     } catch (error) {
         notify(error.message);
     }
@@ -570,7 +584,13 @@ async function renderAppointments() {
     `;
 
     const dateInput = document.querySelector('#appointmentForm [name="date"]');
-    dateInput.min = new Date().toLocaleDateString('en-CA');
+    const now = new Date();
+    const localToday = [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, '0'),
+        String(now.getDate()).padStart(2, '0')
+    ].join('-');
+    dateInput.min = localToday;
 
     try {
         const [patients, doctors, appointments] = await Promise.all([

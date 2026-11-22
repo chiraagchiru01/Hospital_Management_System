@@ -94,17 +94,59 @@ function validPhone(phone) {
     return /^[0-9+() -]{7,20}$/.test(phone);
 }
 
+function normalizeDate(value) {
+    if (typeof value !== 'string') return null;
+    const date = value.trim();
+
+    // HTML date inputs submit YYYY-MM-DD. Also accept DD/MM/YYYY or DD-MM-YYYY.
+    let match = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) {
+        match = date.match(/^(\d{2})[/-](\d{2})[/-](\d{4})$/);
+        if (match) {
+            const [, day, month, year] = match;
+            return normalizeDate(`${year}-${month}-${day}`);
+        }
+    }
+    if (!match) return null;
+
+    const [, yearText, monthText, dayText] = match;
+    const year = Number(yearText);
+    const month = Number(monthText);
+    const day = Number(dayText);
+    const parsed = new Date(Date.UTC(year, month - 1, day));
+
+    return parsed.getUTCFullYear() === year &&
+        parsed.getUTCMonth() === month - 1 &&
+        parsed.getUTCDate() === day
+        ? `${yearText}-${monthText}-${dayText}`
+        : null;
+}
+
+function normalizeTime(value) {
+    if (typeof value !== 'string') return null;
+    const time = value.trim();
+
+    // Accept HTML time values with or without seconds.
+    let match = time.match(/^([01]?\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?$/);
+    if (match) {
+        return `${match[1].padStart(2, '0')}:${match[2]}`;
+    }
+
+    // Also accept 12-hour values such as 2:30 PM.
+    match = time.match(/^(0?[1-9]|1[0-2]):([0-5]\d)\s*(AM|PM)$/i);
+    if (!match) return null;
+
+    let hour = Number(match[1]) % 12;
+    if (match[3].toUpperCase() === 'PM') hour += 12;
+    return `${String(hour).padStart(2, '0')}:${match[2]}`;
+}
+
 function validDate(date) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
-
-    const parsed = new Date(date + 'T00:00:00');
-
-    return !Number.isNaN(parsed.getTime()) &&
-        parsed.toISOString().slice(0, 10) === date;
+    return normalizeDate(date) !== null;
 }
 
 function validTime(time) {
-    return /^([01]\d|2[0-3]):[0-5]\d$/.test(time);
+    return normalizeTime(time) !== null;
 }
 
 function validatePatient(body) {
@@ -506,6 +548,9 @@ app.post('/api/appointments', (req, res) => {
             return res.status(400).json({ error });
         }
 
+        req.body.date = normalizeDate(req.body.date);
+        req.body.time = normalizeTime(req.body.time);
+
         const patientId = Number(req.body.patient_id);
         const doctorId = Number(req.body.doctor_id);
 
@@ -556,6 +601,9 @@ app.put('/api/appointments/:id', (req, res) => {
         if (error) {
             return res.status(400).json({ error });
         }
+
+        req.body.date = normalizeDate(req.body.date);
+        req.body.time = normalizeTime(req.body.time);
 
         const status = req.body.status || 'Scheduled';
 
