@@ -1,0 +1,138 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    display: flex;
+    background: #f4f7fb;
+    color: #263445;
+}
+
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: #123b56;
+    color: white;
+    padding: 30px 20px;
+    position: fixed;
+}
+
+.sidebar h2 {
+    font-size: 25px;
+    margin-bottom: 8px;
+}
+
+.sidebar p {
+    color: #b7d0df;
+    font-size: 13px;
+    margin-bottom: 45px;
+}
+
+.sidebar nav a {
+    display: block;
+    text-decoration: none;
+    color: #d5e4ed;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.sidebar nav a:hover,
+.sidebar nav a.active {
+    background: #2386a8;
+    color: white;
+}
+
+.main {
+    margin-left: 250px;
+    padding: 40px;
+    width: calc(100% - 250px);
+}
+
+header {
+    margin-bottom: 35px;
+}
+
+header h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+header p {
+    color: #718096;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    margin-bottom: 35px;
+}
+
+.stat-card {
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border-left: 5px solid #2386a8;
+}
+
+.stat-card h3 {
+    color: #718096;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+.stat-card h1 {
+    font-size: 32px;
+    color: #123b56;
+}
+
+.content {
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+}
+
+.content h2 {
+    margin-bottom: 20px;
+}
+
+button {
+    background: #2386a8;
+    color: white;
+    border: none;
+    padding: 13px 20px;
+    border-radius: 7px;
+    cursor: pointer;
+    margin: 5px;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #123b56;
+}
+
+@media (max-width: 800px) {
+    .sidebar {
+        width: 180px;
+    }
+
+    .main {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+        padding: 20px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+}
